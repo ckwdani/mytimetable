@@ -16,80 +16,64 @@
             border-radius: 8px;
             background-color: #f9f9f9;
         }
-        .day-overview {
-            margin-top: 10px;
-            padding: 15px;
+        .week-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(7, 1fr);
+            gap: 1px;
         }
-        .event-block {
-            margin-bottom: 10px;
-            background-color: #e0f7fa;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .event-time {
-            font-weight: bold;
-        }
-        table.timetable-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table.timetable-table th, table.timetable-table td {
-            
-            padding: 8px;
-            text-align: center;
-        }
-        table.timetable-table th {
+        .time-header, .day-header {
             background-color: #f0f0f0;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ccc;
         }
-        .time-cell {
+        .time-column {
+            text-align: center;
+            padding: 10px;
             font-weight: bold;
             background-color: #f8f8f8;
-            border-right: 2px solid #ccc;
+            height: 40px; /* Standard time cell size */
+        }
+        .day-column {
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #ccc;
         }
         .event-cell {
-            border: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+        }
+        .event-block {
             background-color: #e0f7fa;
+            padding: 10px;
+            border-radius: 4px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .empty-slot {
+            height: 40px;
         }
     </style>
 </head>
 <body>
     <div id="app">
         <div class="timetable">
-            <h2>Timetable for Today</h2>
-            <div v-if="todaySchedule.length" class="day-overview">
-                <div v-for="event in todaySchedule" :key="event.startTime" class="event-block">
-                    <div class="event-time">{{ event.startTime }} - {{ event.endTime }}</div>
-                    <div>{{ event.activity }}</div>
+            <h2>Full Week Overview</h2>
+            <div class="week-grid">
+                <div class="time-header">Time</div>
+                <div v-for="day in days" class="day-header">{{ day }}</div>
+                <div v-for="hour in displayedHours" class="time-column">{{ hour }}</div>
+                <div v-for="day in days" class="day-column">
+                    <template v-for="slot in createTimeSlots(day)">
+                        <div v-if="slot.isEmpty" class="empty-slot"></div>
+                        <div v-else :style="getEventBlockStyle(slot)" class="event-block">
+                            {{ slot.activity }} ({{ slot.startTime }} - {{ slot.endTime }})
+                        </div>
+                    </template>
                 </div>
             </div>
-            <div v-else>
-                <p>No activities scheduled for today.</p>
-            </div>
-
-            <h3>Full Week Overview</h3>
-            <table class="timetable-table">
-                <thead>
-                    <tr>
-                        <th class="time-cell">Time</th>
-                        <th v-for="day in Object.keys(weeklySchedule)" :key="day">
-                            {{ day }}
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="hour in displayedHours" :key="hour">
-                        <td class="time-cell">{{ hour }}</td>
-                        <td v-for="day in Object.keys(weeklySchedule)" :key="day">
-                            <div v-if="getEventAtTime(weeklySchedule[day], hour)" class="event-cell" :colspan="getColspanForEvent(getEventAtTime(weeklySchedule[day], hour))">
-                                <div class="event-content">{{ getEventAtTime(weeklySchedule[day], hour).activity }}</div>
-                            </div>
-                            <div v-else class="event-cell event-empty"></div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </div>
 
@@ -105,19 +89,20 @@
                         const dayNode = xmlDoc.querySelector(`day[name="${dayName}"]`);
                         if (!dayNode) return [];
                         return Array.from(dayNode.querySelectorAll('event')).map(eventNode => {
+                            const startTime = eventNode.querySelector('startTime')?.textContent || "00:00";
+                            const endTime = eventNode.querySelector('endTime')?.textContent || "01:00";
                             return {
-                                startTime: eventNode.querySelector('startTime')?.textContent || "00:00",
-                                endTime: eventNode.querySelector('endTime')?.textContent || "01:00",
+                                startTime,
+                                endTime,
                                 activity: eventNode.querySelector('name')?.textContent || "(No activity)"
                             };
-                        });
+                        }).filter(event => /^\d{2}:\d{2}$/.test(event.startTime) && /^\d{2}:\d{2}$/.test(event.endTime));
                     };
 
                     const app = Vue.createApp({
                         data() {
                             return {
-                                currentDay: new Date().toLocaleString('en-US', { weekday: 'long' }),
-                                hours: Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`),
+                                days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
                                 weeklySchedule: {
                                     Monday: getDaySchedule('Monday'),
                                     Tuesday: getDaySchedule('Tuesday'),
@@ -126,33 +111,57 @@
                                     Friday: getDaySchedule('Friday'),
                                     Saturday: getDaySchedule('Saturday'),
                                     Sunday: getDaySchedule('Sunday')
-                                }
+                                },
+                                timeCellHeight: 40 // Standard height for one hour
                             };
                         },
                         computed: {
-                            todaySchedule() {
-                                return this.weeklySchedule[this.currentDay] || [];
-                            },
                             displayedHours() {
-                                const allTimes = Object.values(this.weeklySchedule).flatMap(day => day.flatMap(event => [event.startTime, event.endTime])).map(time => parseInt(time.split(":")[0]));
-                                const minHour = Math.min(...allTimes);
-                                const maxHour = Math.max(...allTimes);
-                                return this.hours.slice(minHour, maxHour + 1);
+                                const allTimes = Object.values(this.weeklySchedule).flatMap(day => day.flatMap(event => [event.startTime, event.endTime]));
+                                const minHour = Math.min(...allTimes.map(t => parseInt(t.split(':')[0])));
+                                const maxHour = Math.max(...allTimes.map(t => parseInt(t.split(':')[0])));
+                                return Array.from({ length: (maxHour - minHour + 1) }, (_, i) => `${(minHour + i).toString().padStart(2, '0')}:00`);
                             }
                         },
                         methods: {
-                            getEventAtTime(schedule, time) {
-                                return schedule.find(event => {
-                                    const start = parseInt(event.startTime.split(':')[0]);
-                                    const end = parseInt(event.endTime.split(':')[0]);
-                                    const current = parseInt(time.split(':')[0]);
-                                    return current >= start && current < end;
-                                });
+                            createTimeSlots(day) {
+                                const schedule = this.weeklySchedule[day];
+                                const slots = [];
+                                const hours = this.displayedHours.map(h => parseInt(h.split(':')[0]));
+                                let currentIndex = 0;
+                                for (const hour of hours) {
+                                    const matchingEvent = schedule.find(event => {
+                                        const start = parseInt(event.startTime.split(':')[0]);
+                                        const end = parseInt(event.endTime.split(':')[0]);
+                                        return hour >= start && hour < end;
+                                    });
+                                    if (matchingEvent) {
+                                        if (currentIndex === 0 || slots[currentIndex - 1]?.activity !== matchingEvent.activity) {
+                                            slots.push({
+                                                ...matchingEvent,
+                                                duration: (parseInt(matchingEvent.endTime.split(':')[0]) - parseInt(matchingEvent.startTime.split(':')[0]))
+                                                    + (parseInt(matchingEvent.endTime.split(':')[1]) - parseInt(matchingEvent.startTime.split(':')[1])) / 60,
+                                                isEmpty: false
+                                            });
+                                        }
+                                    } else {
+                                        slots.push({ isEmpty: true });
+                                    }
+                                    currentIndex++;
+                                }
+                                return slots;
                             },
-                            getColspanForEvent(event) {
-                                const start = parseInt(event.startTime.split(':')[0]);
-                                const end = parseInt(event.endTime.split(':')[0]);
-                                return end - start;
+                            getEventBlockStyle(slot) {
+                                if (slot.isEmpty) return { height: `${this.timeCellHeight}px` };
+                                const startMinutes = parseInt(slot.startTime.split(':')[1]);
+                                const endMinutes = parseInt(slot.endTime.split(':')[1]);
+                                const startHour = parseInt(slot.startTime.split(':')[0]);
+                                const endHour = parseInt(slot.endTime.split(':')[0]);
+                                const duration = (endHour - startHour) + (endMinutes - startMinutes) / 60;
+                                return {
+                                    height: `${duration * this.timeCellHeight}px`,
+                                    marginTop: `${(startMinutes / 60) * this.timeCellHeight}px`
+                                };
                             }
                         }
                     });
