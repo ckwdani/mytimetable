@@ -30,7 +30,6 @@
         }
         .time-column {
             text-align: center;
-            padding: 10px;
             font-weight: bold;
             background-color: #f8f8f8;
             height: 40px; /* Standard time cell size */
@@ -44,16 +43,17 @@
             border-bottom: 1px solid #ccc;
         }
         .event-block {
-            background-color: #e0f7fa;
-            padding: 10px;
-            border-radius: 4px;
+            background-color: #9bc0ed9d;
+           
+
             height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .empty-slot {
-            height: 40px;
+            /* height: 40px; */
+            border-bottom: 1px solid #7c7c7c;
         }
     </style>
 </head>
@@ -64,10 +64,12 @@
             <div class="week-grid">
                 <div class="time-header">Time</div>
                 <div v-for="day in days" class="day-header">{{ day }}</div>
-                <div v-for="hour in displayedHours" class="time-column">{{ hour }}</div>
+                <div class="day-column">
+                    <div v-for="hour in displayedHours" class="time-column">{{ hour }}</div>
+                </div>
                 <div v-for="day in days" class="day-column">
                     <template v-for="slot in createTimeSlots(day)">
-                        <div v-if="slot.isEmpty" class="empty-slot"></div>
+                        <div v-if="slot.isEmpty" class="empty-slot" :style="getEventBlockStyle(slot)"></div>
                         <div v-else :style="getEventBlockStyle(slot)" class="event-block">
                             {{ slot.activity }} ({{ slot.startTime }} - {{ slot.endTime }})
                         </div>
@@ -125,17 +127,31 @@
                         },
                         methods: {
                             createTimeSlots(day) {
+                        
                                 const schedule = this.weeklySchedule[day];
                                 const slots = [];
+                                
                                 const hours = this.displayedHours.map(h => parseInt(h.split(':')[0]));
                                 let currentIndex = 0;
                                 for (const hour of hours) {
+                              
+                                    // Find the event that matches the current hour
                                     const matchingEvent = schedule.find(event => {
                                         const start = parseInt(event.startTime.split(':')[0]);
                                         const end = parseInt(event.endTime.split(':')[0]);
                                         return hour >= start && hour < end;
                                     });
+            
+                                
                                     if (matchingEvent) {
+                                        // Add an empty slot if the event doesn't start at the hour
+                                        const [eventStartHour, eventStartMinutes] = matchingEvent.startTime.split(':').map(Number);
+                                        const eventDuration = (eventStartHour - hour) + (eventStartMinutes / 60);
+                                        if (eventDuration > 0) {
+                                            slots.push({ isEmpty: true, startTime: `${hour.toString().padStart(2, '0')}:00`, endTime: matchingEvent.startTime });
+                                        }   
+
+
                                         if (currentIndex === 0 || slots[currentIndex - 1]?.activity !== matchingEvent.activity) {
                                             slots.push({
                                                 ...matchingEvent,
@@ -144,15 +160,42 @@
                                                 isEmpty: false
                                             });
                                         }
+                                        //add empty slot for the remaining time
+                                        const [eventEndHour, eventEndMinutes] = matchingEvent.endTime.split(':').map(Number);
+                                        const eventEndTime = eventEndMinutes / 60;
+                                        if (eventEndTime > 0) {
+                                            const nextEvent = schedule.find(event => {
+                                                const nextStartHour = parseInt(event.startTime.split(':')[0]);
+                                                return nextStartHour === eventEndHour + 1;
+                                            });
+                                            if (!nextEvent) {
+                                                slots.push({ isEmpty: true, startTime: matchingEvent.endTime, endTime: `${(eventEndHour + 1).toString().padStart(2, '0')}:00` });
+                                            }
+                                        }
+                                      
+                            
+                                        
+
                                     } else {
-                                        slots.push({ isEmpty: true });
+                                        const previousEvent = schedule.find(event => {
+                                            const [endH, endM] = event.endTime.split(':').map(Number);
+                                          
+                                            return endH === hour && endM != 0;
+                                        });
+                            
+                                        if(!previousEvent)
+                                            slots.push({ isEmpty: true, startTime: `${hour.toString().padStart(2, '0')}:00`, endTime: `${(hour + 1).toString().padStart(2, '0')}:00` });
+
                                     }
                                     currentIndex++;
                                 }
                                 return slots;
                             },
                             getEventBlockStyle(slot) {
-                                if (slot.isEmpty) return { height: `${this.timeCellHeight}px` };
+
+                                // if (slot.isEmpty) return { height: `${this.timeCellHeight}px` };
+
+
                                 const startMinutes = parseInt(slot.startTime.split(':')[1]);
                                 const endMinutes = parseInt(slot.endTime.split(':')[1]);
                                 const startHour = parseInt(slot.startTime.split(':')[0]);
@@ -160,7 +203,7 @@
                                 const duration = (endHour - startHour) + (endMinutes - startMinutes) / 60;
                                 return {
                                     height: `${duration * this.timeCellHeight}px`,
-                                    marginTop: `${(startMinutes / 60) * this.timeCellHeight}px`
+                                    // marginTop: `${(startMinutes / 60) * this.timeCellHeight}px`
                                 };
                             }
                         }
