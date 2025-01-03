@@ -1,0 +1,84 @@
+<timetable>
+    <day name="Monday">
+        <event>
+            <startTime>08:00</startTime>
+            <endTime>09:00</endTime>
+            <name>Morning Meeting</name>
+        </event>
+        <event>
+            <startTime>10:00</startTime>
+            <endTime>12:00</endTime>
+            <name>Project Work</name>
+        </event>
+    </day>
+    <day name="Tuesday">
+        <event>
+            <startTime>09:00</startTime>
+            <endTime>10:00</endTime>
+            <name>Client Call</name>
+        </event>
+    </day>
+    <day name="Wednesday">
+        <event>
+            <startTime>13:00</startTime>
+            <endTime>15:00</endTime>
+            <name>Code Review</name>
+        </event>
+    </day>
+    <day name="Thursday">
+        <event>
+            <startTime>11:00</startTime>
+            <endTime>12:00</endTime>
+            <name>Planning Session</name>
+        </event>
+    </day>
+    <day name="Friday">
+        <event>
+            <startTime>15:00</startTime>
+            <endTime>16:30</endTime>
+            <name>Weekly Summary</name>
+        </event>
+    </day>
+    <day name="Saturday">
+        <event>
+            <startTime>10:00</startTime>
+            <endTime>11:00</endTime>
+            <name>Personal Project Time</name>
+        </event>
+    </day>
+    <day name="Sunday">
+        <event>
+            <startTime>11:00</startTime>
+            <endTime>12:00</endTime>
+            <name>Relax and Read</name>
+        </event>
+    </day>
+</timetable>
+
+
+
+
+
+<!--
+<timetable>
+    <day>
+        <event>
+            <time>09:00 AM</time>
+            <activity>Morning Meeting</activity>
+        </event>
+        <event>
+            <time>11:00 AM</time>
+            <activity>Project Work</activity>
+        </event>
+    </day>
+    <day>
+        <event>
+            <time>10:00 AM</time>
+            <activity>Code Review</activity>
+        </event>
+    </day>
+    Continue for all 7 days
+</timetable> 
+--> 
+
+

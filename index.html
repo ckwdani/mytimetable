@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable App</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .timetable {
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .day-overview {
+            margin-top: 10px;
+            padding: 15px;
+        }
+        .event-block {
+            margin-bottom: 10px;
+            background-color: #e0f7fa;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .event-time {
+            font-weight: bold;
+        }
+        table.timetable-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table.timetable-table th, table.timetable-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        table.timetable-table th {
+            background-color: #f0f0f0;
+        }
+        .time-cell {
+            font-weight: bold;
+            background-color: #f8f8f8;
+            border-right: 2px solid #ccc;
+        }
+        .event-cell {
+            background-color: #e0f7fa;
+
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="timetable">
+            <h2>Timetable for Today</h2>
+            <div v-if="todaySchedule.length" class="day-overview">
+                <div v-for="event in todaySchedule" :key="event.startTime" class="event-block">
+                    <div class="event-time">{{ event.startTime }} - {{ event.endTime }}</div>
+                    <div>{{ event.activity }}</div>
+                </div>
+            </div>
+            <div v-else>
+                <p>No activities scheduled for today.</p>
+            </div>
+
+            <h3>Full Week Overview</h3>
+            <table class="timetable-table">
+                <thead>
+                    <tr>
+                        <th class="time-cell">Time</th>
+                        <th v-for="day in Object.keys(weeklySchedule)" :key="day">
+                            {{ day }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="hour in displayedHours" :key="hour">
+                        <td class="time-cell">{{ hour }}</td>
+                        <td v-for="day in Object.keys(weeklySchedule)" :key="day">
+                            <div v-if="getEventAtTime(weeklySchedule[day], hour)" class="event-cell" :colspan="getColspanForEvent(getEventAtTime(weeklySchedule[day], hour))">
+                                <div class="event-content">{{ getEventAtTime(weeklySchedule[day], hour).activity }}</div>
+                            </div>
+                            <div v-else class="event-cell event-empty"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('timetable.xml')
+                .then(response => response.text())
+                .then(xmlString => {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+
+                    const getDaySchedule = (dayName) => {
+                        const dayNode = xmlDoc.querySelector(`day[name="${dayName}"]`);
+                        if (!dayNode) return [];
+                        return Array.from(dayNode.querySelectorAll('event')).map(eventNode => {
+                            return {
+                                startTime: eventNode.querySelector('startTime')?.textContent || "00:00",
+                                endTime: eventNode.querySelector('endTime')?.textContent || "01:00",
+                                activity: eventNode.querySelector('name')?.textContent || "(No activity)"
+                            };
+                        });
+                    };
+
+                    const app = Vue.createApp({
+                        data() {
+                            return {
+                                currentDay: new Date().toLocaleString('en-US', { weekday: 'long' }),
+                                hours: Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`),
+                                weeklySchedule: {
+                                    Monday: getDaySchedule('Monday'),
+                                    Tuesday: getDaySchedule('Tuesday'),
+                                    Wednesday: getDaySchedule('Wednesday'),
+                                    Thursday: getDaySchedule('Thursday'),
+                                    Friday: getDaySchedule('Friday'),
+                                    Saturday: getDaySchedule('Saturday'),
+                                    Sunday: getDaySchedule('Sunday')
+                                }
+                            };
+                        },
+                        computed: {
+                            todaySchedule() {
+                                return this.weeklySchedule[this.currentDay] || [];
+                            },
+                            displayedHours() {
+                                const allTimes = Object.values(this.weeklySchedule).flat().map(event => event.startTime.split(":")[0]).map(Number);
+                                const minHour = Math.min(...allTimes);
+                                return this.hours.slice(minHour);
+                            }
+                        },
+                        methods: {
+                            getEventAtTime(schedule, time) {
+                                return schedule.find(event => {
+                                    const start = parseInt(event.startTime.split(':')[0]);
+                                    const end = parseInt(event.endTime.split(':')[0]);
+                                    const current = parseInt(time.split(':')[0]);
+                                    return current >= start && current < end;
+                                });
+                            },
+                            getColspanForEvent(event) {
+                                const start = parseInt(event.startTime.split(':')[0]);
+                                const end = parseInt(event.endTime.split(':')[0]);
+                                return end - start;
+                            }
+                        }
+                    });
+
+                    app.mount('#app');
+                })
+                .catch(error => {
+                    console.error('Error loading XML:', error);
+                });
+        });
+    </script>
+</body>
+</html>

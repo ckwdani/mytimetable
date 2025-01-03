@@ -1,0 +1,19 @@
+<timetable>
+    <day>
+        <event>
+            <time>09:00 AM</time>
+            <activity>Morning Meeting</activity>
+        </event>
+        <event>
+            <time>11:00 AM</time>
+            <activity>Project Work</activity>
+        </event>
+    </day>
+    <day>
+        <event>
+            <time>10:00 AM</time>
+            <activity>Code Review</activity>
+        </event>
+    </day>
+    Continue for all 7 days
+</timetable> 
