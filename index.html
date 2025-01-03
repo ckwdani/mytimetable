@@ -36,7 +36,7 @@
             margin-top: 20px;
         }
         table.timetable-table th, table.timetable-table td {
-            border: 1px solid #ccc;
+            
             padding: 8px;
             text-align: center;
         }
@@ -49,8 +49,8 @@
             border-right: 2px solid #ccc;
         }
         .event-cell {
+            border: 1px solid #ccc;
             background-color: #e0f7fa;
-
         }
     </style>
 </head>
@@ -134,9 +134,10 @@
                                 return this.weeklySchedule[this.currentDay] || [];
                             },
                             displayedHours() {
-                                const allTimes = Object.values(this.weeklySchedule).flat().map(event => event.startTime.split(":")[0]).map(Number);
+                                const allTimes = Object.values(this.weeklySchedule).flatMap(day => day.flatMap(event => [event.startTime, event.endTime])).map(time => parseInt(time.split(":")[0]));
                                 const minHour = Math.min(...allTimes);
-                                return this.hours.slice(minHour);
+                                const maxHour = Math.max(...allTimes);
+                                return this.hours.slice(minHour, maxHour + 1);
                             }
                         },
                         methods: {
