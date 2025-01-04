@@ -10,13 +10,21 @@
 <body>
     <div id="app">
         <div class="timetable">
-            <h2>Timetable for Today ({{ currentDay }})</h2>
+            <h2>Timetable for Today ({{ selectedDay }})</h2>
+            <!-- Buttons to move day up,down or reset -->
+            <div class="buttons-wrapper">
+                <button @click="changeCurrentDay(false)">Previous Day</button>
+                <button @click="changeCurrentDay(null, true)" style="border-color: aqua;">Reset Day</button>
+                <button @click="changeCurrentDay(true)">Next Day</button>
+            </div>
+
             <div class="singleDay">
+                
                 <div class="">
-                    <div v-for="hour in displayedHours" class="time-column">{{ hour }}</div>
+                    <div v-for="hour in displayedHours"  class="time-column"><p :style="getActiveHourStyle(hour)">{{ hour }}</p></div>
                 </div>
                 <div class="day-column">
-                    <template v-for="slot in createTimeSlots(currentDay)">
+                    <template v-for="slot in createTimeSlots(selectedDay)">
                         <div v-if="slot.isEmpty" class="empty-slot" :style="getEventBlockStyle(slot)"></div>
                         <div v-else :style="getEventBlockStyle(slot)" class="event-block">
                             <p>{{ slot.activity }}</p><br>
