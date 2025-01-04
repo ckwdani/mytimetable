@@ -16,6 +16,7 @@
             <name>Mensa</name>
         </event>
         <event>
+            <color>red</color>
             <startTime>13:30</startTime>
             <endTime>15:00</endTime>
             <name>Reni Essen</name>

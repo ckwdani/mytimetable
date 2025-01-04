@@ -10,18 +10,35 @@
 <body>
     <div id="app">
         <div class="timetable">
-            <h2 style="color:#005b6b">Full Week Overview</h2>
-            <div class="week-grid">
+            <h2>Timetable for Today ({{ currentDay }})</h2>
+            <div class="singleDay">
+                <div class="">
+                    <div v-for="hour in displayedHours" class="time-column">{{ hour }}</div>
+                </div>
+                <div class="day-column">
+                    <template v-for="slot in createTimeSlots(currentDay)">
+                        <div v-if="slot.isEmpty" class="empty-slot" :style="getEventBlockStyle(slot)"></div>
+                        <div v-else :style="getEventBlockStyle(slot)" class="event-block">
+                            <p>{{ slot.activity }}</p><br>
+                            <p style="font-size: xx-small;"> &nbsp; ({{ slot.startTime }} - {{ slot.endTime }})</p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <h2 >Full Week Overview</h2>
+            <div class="week-grid week-overview">
                 <div class="time-header">Time</div>
-                <div v-for="day in days" class="day-header">{{ day }}</div>
+                <div v-for="day in days" class="day-header min-width-130">{{ day }}</div>
                 <div class="day-column">
                     <div v-for="hour in displayedHours" class="time-column">{{ hour }}</div>
                 </div>
-                <div v-for="day in days" class="day-column">
+                <div v-for="day in days" class="day-column min-width-130">
                     <template v-for="slot in createTimeSlots(day)">
                         <div v-if="slot.isEmpty" class="empty-slot" :style="getEventBlockStyle(slot)"></div>
                         <div v-else :style="getEventBlockStyle(slot)" class="event-block">
-                            {{ slot.activity }} ({{ slot.startTime }} - {{ slot.endTime }})
+                            <p>{{ slot.activity }}</p><br>
+                            <p style="font-size: xx-small;"> &nbsp; ({{ slot.startTime }} - {{ slot.endTime }})</p>
                         </div>
                     </template>
                 </div>
