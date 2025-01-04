@@ -10,6 +10,16 @@
             <endTime>12:30</endTime>
             <name>Project Work</name>
         </event>
+        <event>
+            <startTime>12:30</startTime>
+            <endTime>13:00</endTime>
+            <name>Mensa</name>
+        </event>
+        <event>
+            <startTime>13:30</startTime>
+            <endTime>15:00</endTime>
+            <name>Reni Essen</name>
+        </event>
     </day>
     <day name="Tuesday">
         <event>
@@ -22,6 +32,12 @@
             <endTime>10:30</endTime>
             <name>Client Call</name>
         </event>
+                <event>
+            <startTime>10:30</startTime>
+            <endTime>12:30</endTime>
+            <name>Project Work</name>
+        </event>
+
     </day>
     <day name="Wednesday">
         <event>

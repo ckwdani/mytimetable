@@ -5,62 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timetable App</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .timetable {
-            margin: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-        .week-grid {
-            display: grid;
-            grid-template-columns: 100px repeat(7, 1fr);
-            gap: 1px;
-        }
-        .time-header, .day-header {
-            background-color: #f0f0f0;
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
-        .time-column {
-            text-align: center;
-            font-weight: bold;
-            background-color: #f8f8f8;
-            height: 40px; /* Standard time cell size */
-        }
-        .day-column {
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid #ccc;
-        }
-        .event-cell {
-            border-bottom: 1px solid #ccc;
-        }
-        .event-block {
-            background-color: #9bc0ed9d;
-           
-
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .empty-slot {
-            /* height: 40px; */
-            border-bottom: 1px solid #7c7c7c;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
         <div class="timetable">
-            <h2>Full Week Overview</h2>
+            <h2 style="color:#005b6b">Full Week Overview</h2>
             <div class="week-grid">
                 <div class="time-header">Time</div>
                 <div v-for="day in days" class="day-header">{{ day }}</div>
@@ -79,142 +29,7 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            fetch('timetable.xml')
-                .then(response => response.text())
-                .then(xmlString => {
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(xmlString, "application/xml");
-
-                    const getDaySchedule = (dayName) => {
-                        const dayNode = xmlDoc.querySelector(`day[name="${dayName}"]`);
-                        if (!dayNode) return [];
-                        return Array.from(dayNode.querySelectorAll('event')).map(eventNode => {
-                            const startTime = eventNode.querySelector('startTime')?.textContent || "00:00";
-                            const endTime = eventNode.querySelector('endTime')?.textContent || "01:00";
-                            return {
-                                startTime,
-                                endTime,
-                                activity: eventNode.querySelector('name')?.textContent || "(No activity)"
-                            };
-                        }).filter(event => /^\d{2}:\d{2}$/.test(event.startTime) && /^\d{2}:\d{2}$/.test(event.endTime));
-                    };
-
-                    const app = Vue.createApp({
-                        data() {
-                            return {
-                                days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-                                weeklySchedule: {
-                                    Monday: getDaySchedule('Monday'),
-                                    Tuesday: getDaySchedule('Tuesday'),
-                                    Wednesday: getDaySchedule('Wednesday'),
-                                    Thursday: getDaySchedule('Thursday'),
-                                    Friday: getDaySchedule('Friday'),
-                                    Saturday: getDaySchedule('Saturday'),
-                                    Sunday: getDaySchedule('Sunday')
-                                },
-                                timeCellHeight: 40 // Standard height for one hour
-                            };
-                        },
-                        computed: {
-                            displayedHours() {
-                                const allTimes = Object.values(this.weeklySchedule).flatMap(day => day.flatMap(event => [event.startTime, event.endTime]));
-                                const minHour = Math.min(...allTimes.map(t => parseInt(t.split(':')[0])));
-                                const maxHour = Math.max(...allTimes.map(t => parseInt(t.split(':')[0])));
-                                return Array.from({ length: (maxHour - minHour + 1) }, (_, i) => `${(minHour + i).toString().padStart(2, '0')}:00`);
-                            }
-                        },
-                        methods: {
-                            createTimeSlots(day) {
-                        
-                                const schedule = this.weeklySchedule[day];
-                                const slots = [];
-                                
-                                const hours = this.displayedHours.map(h => parseInt(h.split(':')[0]));
-                                let currentIndex = 0;
-                                for (const hour of hours) {
-                              
-                                    // Find the event that matches the current hour
-                                    const matchingEvent = schedule.find(event => {
-                                        const start = parseInt(event.startTime.split(':')[0]);
-                                        const end = parseInt(event.endTime.split(':')[0]);
-                                        return hour >= start && hour < end;
-                                    });
-            
-                                
-                                    if (matchingEvent) {
-                                        // Add an empty slot if the event doesn't start at the hour
-                                        const [eventStartHour, eventStartMinutes] = matchingEvent.startTime.split(':').map(Number);
-                                        const eventDuration = (eventStartHour - hour) + (eventStartMinutes / 60);
-                                        if (eventDuration > 0) {
-                                            slots.push({ isEmpty: true, startTime: `${hour.toString().padStart(2, '0')}:00`, endTime: matchingEvent.startTime });
-                                        }   
-
-
-                                        if (currentIndex === 0 || slots[currentIndex - 1]?.activity !== matchingEvent.activity) {
-                                            slots.push({
-                                                ...matchingEvent,
-                                                duration: (parseInt(matchingEvent.endTime.split(':')[0]) - parseInt(matchingEvent.startTime.split(':')[0]))
-                                                    + (parseInt(matchingEvent.endTime.split(':')[1]) - parseInt(matchingEvent.startTime.split(':')[1])) / 60,
-                                                isEmpty: false
-                                            });
-                                        }
-                                        //add empty slot for the remaining time
-                                        const [eventEndHour, eventEndMinutes] = matchingEvent.endTime.split(':').map(Number);
-                                        const eventEndTime = eventEndMinutes / 60;
-                                        if (eventEndTime > 0) {
-                                            const nextEvent = schedule.find(event => {
-                                                const nextStartHour = parseInt(event.startTime.split(':')[0]);
-                                                return nextStartHour === eventEndHour + 1;
-                                            });
-                                            if (!nextEvent) {
-                                                slots.push({ isEmpty: true, startTime: matchingEvent.endTime, endTime: `${(eventEndHour + 1).toString().padStart(2, '0')}:00` });
-                                            }
-                                        }
-                                      
-                            
-                                        
-
-                                    } else {
-                                        const previousEvent = schedule.find(event => {
-                                            const [endH, endM] = event.endTime.split(':').map(Number);
-                                          
-                                            return endH === hour && endM != 0;
-                                        });
-                            
-                                        if(!previousEvent)
-                                            slots.push({ isEmpty: true, startTime: `${hour.toString().padStart(2, '0')}:00`, endTime: `${(hour + 1).toString().padStart(2, '0')}:00` });
-
-                                    }
-                                    currentIndex++;
-                                }
-                                return slots;
-                            },
-                            getEventBlockStyle(slot) {
-
-                                // if (slot.isEmpty) return { height: `${this.timeCellHeight}px` };
-
-
-                                const startMinutes = parseInt(slot.startTime.split(':')[1]);
-                                const endMinutes = parseInt(slot.endTime.split(':')[1]);
-                                const startHour = parseInt(slot.startTime.split(':')[0]);
-                                const endHour = parseInt(slot.endTime.split(':')[0]);
-                                const duration = (endHour - startHour) + (endMinutes - startMinutes) / 60;
-                                return {
-                                    height: `${duration * this.timeCellHeight}px`,
-                                    // marginTop: `${(startMinutes / 60) * this.timeCellHeight}px`
-                                };
-                            }
-                        }
-                    });
-
-                    app.mount('#app');
-                })
-                .catch(error => {
-                    console.error('Error loading XML:', error);
-                });
-        });
-    </script>
+    <script type="module" src="main.js"></script>
+    
 </body>
 </html>
