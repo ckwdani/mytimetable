@@ -1,25 +1,42 @@
 <timetable>
-    <day name="Monday">
+    <day name="Monday" rita="true">
         <event>
+            <startTime>07:30</startTime>
+            <endTime>08:00</endTime>
+            <name>Aufstehen, Frühstück</name>
+        </event>
+        <event>
+            <color>#f9f09d</color>
             <startTime>08:00</startTime>
-            <endTime>09:00</endTime>
-            <name>Morning Meeting</name>
+            <endTime>10:00</endTime>
+            <name>Sport</name>
         </event>
         <event>
-            <startTime>10:00</startTime>
-            <endTime>12:30</endTime>
-            <name>Project Work</name>
+            <color>#009374</color>
+            <TColor>#ffffff</TColor>
+            <startTime>10:30</startTime>
+            <endTime>11:30</endTime>
+            <name>IOF (Teammeeting)</name>
         </event>
         <event>
-            <startTime>12:30</startTime>
-            <endTime>13:00</endTime>
-            <name>Mensa</name>
+            <color>#61f969</color>
+            <startTime>11:30</startTime>
+            <endTime>13:30</endTime>
+            <name>Mittag Essen</name>
         </event>
         <event>
-            <color>red</color>
+            <color>#ffffff</color>
+            <TColor>#ed1c38</TColor>
             <startTime>13:30</startTime>
             <endTime>15:00</endTime>
-            <name>Reni Essen</name>
+            <name>Plasmaspende</name>
+        </event>
+        <event>
+            <color>#009374</color>
+            <TColor>#ffffff</TColor>
+            <startTime>15:00</startTime>
+            <endTime>18:00</endTime>
+            <name>IOF/EE</name>
         </event>
     </day>
     <day name="Tuesday">
@@ -70,9 +87,10 @@
     </day>
     <day name="Sunday">
         <event>
-            <startTime>11:00</startTime>
-            <endTime>12:00</endTime>
-            <name>Relax and Read</name>
+        <color>#db9df9</color>
+            <startTime>10:00</startTime>
+            <endTime>20:00</endTime>
+            <name>Reni</name>
         </event>
     </day>
 </timetable>
