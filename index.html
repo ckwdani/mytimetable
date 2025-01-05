@@ -10,7 +10,7 @@
 <body>
     <div id="app">
         <div class="timetable">
-            <h2>Timetable for Today ({{ selectedDay }})</h2>
+            <h2>Timetable for {{ isToday(selectedDay) ? 'Today('+selectedDay+')' : selectedDay }}</h2>
             <!-- Buttons to move day up,down or reset -->
             <div class="buttons-wrapper">
                 <button @click="changeCurrentDay(false)">Previous Day</button>
