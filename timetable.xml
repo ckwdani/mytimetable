@@ -1,5 +1,5 @@
 <timetable>
-    <day name="Monday" rita="true">
+    <day name="Monday">
         <event>
             <startTime>07:30</startTime>
             <endTime>08:00</endTime>
@@ -38,22 +38,38 @@
             <endTime>18:00</endTime>
             <name>IOF/EE</name>
         </event>
+        <event>
+            <color>#f4690c</color>
+            <startTime>18:00</startTime>
+            <endTime>20:00</endTime>
+            <name>EE</name>
+        </event>
+        <event>
+            <color>#db9df9</color>
+            <startTime>20:00</startTime>
+            <endTime>22:00</endTime>
+            <name>Reni</name>
+        </event>
     </day>
+
+
+
     <day name="Tuesday">
         <event>
-            <startTime>08:00</startTime>
-            <endTime>09:00</endTime>
-            <name>Client Call 111 </name>
+            <startTime>09:00</startTime>
+            <endTime>10:00</endTime>
+            <name> Aufstehen, Frühstück, Bahn </name> 
         </event>
         <event>
-            <startTime>09:30</startTime>
-            <endTime>10:30</endTime>
-            <name>Client Call</name>
+            <name>Sport</name>
+            <color>#f9f09d</color>
+            <startTime>10:00</startTime>
+            <endTime>12:00</endTime>
         </event>
-                <event>
-            <startTime>10:30</startTime>
+        <event>
+            <startTime>12:00</startTime>
             <endTime>12:30</endTime>
-            <name>Project Work</name>
+            <name>Mittag</name>
         </event>
 
     </day>

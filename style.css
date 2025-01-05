@@ -1,0 +1,123 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+h2{
+    color: #2c3e50;
+    text-align: center;
+}
+.singleDay{
+
+    display: grid;
+    grid-template-columns: 150px repeat(1, 1fr);
+    gap: 3px;
+    border: 1px solid #e20000;
+    border-radius: 8px;
+    /* display: grid;
+    grid-template-columns: 100px repeat(1, 1fr);
+    gap: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
+    padding: 10px;
+
+    background-color: #f9f9f9; */
+}
+.timetable {
+    /* margin: 20px; */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    
+}
+.week-grid {
+    display: grid;
+    grid-template-columns: 100px repeat(7, 1fr);
+    
+    gap: 1px;
+}
+.week-overview{
+    overflow: scroll;
+}
+.time-header, .day-header {
+
+    background-color: #f0f0f0;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    /* Border shouls be inside the box */
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+}
+
+.min-width-130 {
+    min-width: 130px;
+}
+
+.time-column {
+    /* align text center vertically */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 1px solid #000000;
+    height: 40px; /* Standard time cell size */
+}
+.day-column {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #ccc;
+}
+.event-cell {
+    box-sizing: border-box;
+    border-bottom: 1px solid #000000;
+}
+.event-block {
+    background-color: #bbf0f69d;
+    border: 1px solid #8a8a8a;
+    border-radius: 4px;
+    color: #5c5c5c;
+   
+
+    height: 100%;
+    display: flex;
+    text-align: center;
+    font-size: small;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.rita{
+    background-color: #f9baba;
+
+}
+.empty-slot {
+    /* height: 40px; */
+    box-sizing: border-box;
+    border-bottom: 1px solid #b3b3b333;
+}
+
+button{
+    background-color: transparent;
+    text-decoration: none;
+    display: inline-block;
+    /* border: none; */
+    border: 2px solid #2c3e50;
+    border-radius: 10px;
+    color: #2c3e50;
+    padding: 10px;
+    width: 100px;
+}
+.buttons-wrapper{
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px;
+}
