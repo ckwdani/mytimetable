@@ -1,7 +1,16 @@
  import { getTextColor } from "./js/utils.js";
  
  document.addEventListener('DOMContentLoaded', () => {
-            fetch('timetable.xml')
+            // check if timetable.local.xml exists
+            let fetchstring = 'timetable.xml';
+            fetch('timetable.local.xml', { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    fetchstring = 'timetable.local.xml';
+                }
+            });
+
+            fetch(fetchstring)
                 .then(response => response.text())
                 .then(xmlString => {
                     const parser = new DOMParser();
