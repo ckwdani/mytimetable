@@ -7,7 +7,7 @@ The timetable is defined in an XML file. Each day of the week is represented by 
 
 ```xml
 <timetable>
-    <day name="DayName">
+    <day name="DayName"> <!-- Eg Thuesday, Monday, etc ... (must be in english) -->
         <event>
             <startTime>HH:MM</startTime>
             <endTime>HH:MM</endTime>
@@ -19,3 +19,18 @@ The timetable is defined in an XML file. Each day of the week is represented by 
     </day>
     <!-- Add more <day> elements for other days of the week -->
 </timetable>
+```
+
+### Special days
+Also if you have special days in a Week (or if you like only take your adderal/ritalin once or twice a week) you can add the _rita_ flag to a day:
+
+``` xml
+...
+    <day name="Thuesday" rita='true'>
+        ...
+    </day>
+...
+```
+
+This will change the background color of the empty spaces of the day.
+And also of the heading part of the day name, and the times in the single day view!
