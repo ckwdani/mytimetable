@@ -119,7 +119,9 @@
                                     const matchingEvent = schedule.find(event => {
                                         const start = parseInt(event.startTime.split(':')[0]);
                                         const end = parseInt(event.endTime.split(':')[0]);
-                                        return hour >= start && hour < end;
+                                        // this test if <= ???
+
+                                        return hour >= start && hour <= end;
                                     });
                                     schedule = schedule.filter(event => event !== matchingEvent);
                                     
@@ -203,7 +205,7 @@
                                 }
                         
                         
-            
+                                console.log(slots);
                                 return slots;
                             },
                             getActiveHourStyle(hour) {
