@@ -2,7 +2,7 @@
  
  document.addEventListener('DOMContentLoaded', () => {
             // check if timetable.local.xml exists
-            let fetchstring = 'timetable.xml';
+            let fetchstring = 'timetable.local.xml';
             fetch('timetable.local.xml', { method: 'HEAD' })
             .then(response => {
                 if (response.ok) {
@@ -135,17 +135,27 @@
                                         if (eventStartTime > 0) {
 
                                             // find an event that is earlier in the scehdule but ends at the same hour as the current event starts
-                                            const previousEvent = constSchedule.find(event => {
+                                            const previousEvent = constSchedule.filter(event => {
                                                 const [endH, endM] = event.endTime.split(':').map(Number);
-                                                return endH === eventStartHour && endM <= eventStartMinutes+30;
-                                            });
+                                                return endH === eventStartHour && endM <= eventStartMinutes; // This is the bug
+                                            }).pop();
                                 
-
+                                            // ---------------------- EMPTY SLOT ----------------------
                                             if (!previousEvent) {
+                                                // if there is no previous event in the same hour add an empty slot from the beginning of the hour to the start of the event
                                                 slots.push({ isEmpty: true, startTime: `${hour.toString().padStart(2, '0')}:00`, endTime: matchingEvent.startTime });
                                             }else{
-                                                // previous event end time
-                                                slots.push({ isEmpty: true, startTime: previousEvent.endTime, endTime: `${hour.toString().padStart(2, '0')}:${eventStartMinutes.toString().padStart(2, '0')}` });
+
+                                                // if there is a previous event in the same hour add an empty slot from the end of the previous event to the start of the event
+                                                if(previousEvent.endTime != matchingEvent.startTime)
+                                                {
+                                                    slots.push({ isEmpty: true, startTime: previousEvent.endTime, endTime: `${eventStartHour.toString().padStart(2, '0')}:${eventStartMinutes.toString().padStart(2, '0')}` });
+                                                    console.log('empty from', previousEvent.endTime, `${eventStartHour.toString().padStart(2, '0')}:${eventStartMinutes.toString().padStart(2, '0')}`);
+                                                    console.log('matching event', matchingEvent);
+                                                    console.log('previous event', previousEvent);
+                                                }
+                                                
+                                                
                                             }
 
                                         }
@@ -198,7 +208,9 @@
 
                             
                                         if(!previousEvent && !nextEvent && !machingEventFullSchedule)
-                                            slots.push({ isEmpty: true, startTime: `${hour.toString().padStart(2, '0')}:00`, endTime: `${(hour + 1).toString().padStart(2, '0')}:00` });
+                                            {
+                                                slots.push({ isEmpty: true, startTime: `${hour.toString().padStart(2, '0')}:00`, endTime: `${(hour + 1).toString().padStart(2, '0')}:00` });
+                                            }
 
                                     }
                                     currentIndex++;
