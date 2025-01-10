@@ -150,9 +150,9 @@
                                                 if(previousEvent.endTime != matchingEvent.startTime)
                                                 {
                                                     slots.push({ isEmpty: true, startTime: previousEvent.endTime, endTime: `${eventStartHour.toString().padStart(2, '0')}:${eventStartMinutes.toString().padStart(2, '0')}` });
-                                                    console.log('empty from', previousEvent.endTime, `${eventStartHour.toString().padStart(2, '0')}:${eventStartMinutes.toString().padStart(2, '0')}`);
-                                                    console.log('matching event', matchingEvent);
-                                                    console.log('previous event', previousEvent);
+                                                    // console.log('empty from', previousEvent.endTime, `${eventStartHour.toString().padStart(2, '0')}:${eventStartMinutes.toString().padStart(2, '0')}`);
+                                                    // console.log('matching event', matchingEvent);
+                                                    // console.log('previous event', previousEvent);
                                                 }
                                                 
                                                 
@@ -194,15 +194,18 @@
                                           
                                             return endH === hour && endM != 0;
                                         });
+                           
                                         // also if there is a next event
                                         const nextEvent = schedule.find(event => {
                                             const nextStartHour = parseInt(event.startTime.split(':')[0]);
-                                            return nextStartHour === hour + 1 && parseInt(event.startTime.split(':')[1]) != 0;
+                                            return nextStartHour === hour  && parseInt(event.startTime.split(':')[1]) != 0;
                                         });
+                                        console.log('next event', nextEvent);
                                         const machingEventFullSchedule = constSchedule.find(event => {
                                             const start = parseInt(event.startTime.split(':')[0]);
                                             const end = parseInt(event.endTime.split(':')[0]);
                                             const endMinutesNotZero = parseInt(event.endTime.split(':')[1]) != 0;
+                                            
                                             return (hour >= start && hour <= end && endMinutesNotZero) || (hour >= start && hour < end);
                                         });
 
